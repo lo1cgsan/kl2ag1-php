@@ -1,4 +1,16 @@
 <?php
+$qstr="BEGIN;
+    CREATE TABLE users (
+        id INTEGER PRIMARY KEY NOT NULL,
+        login CHAR(20) UNIQUE NOT NULL,
+        haslo CHAR(50) NOT NULL,
+        email CHAR(50) UNIQUE NOT NULL,
+        datad INT NOT NULL
+    );
+    INSERT INTO users VALUES (NULL,'admin','".sha1('haslo')."', 'admin@home.net',".time().");
+COMMIT;
+";
+
 function init_baza($dbfile) {
 	global $db,$kom;
 	try {
@@ -8,6 +20,15 @@ function init_baza($dbfile) {
 	} catch(PDOException $e) {
 		echo ($e->getMessage());
 	}
+}
+
+function init_tables() {
+	global $db, $qstr;
+	$q = 'SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'users\'';
+	$ret = array();
+	db_query($q, $ret);
+	if (empty($ret))
+		db_exec($qstr);
 }
 
 function db_exec($qstr) {
@@ -46,17 +67,4 @@ function db_query($qstr,&$ret=null) {
 	if (empty($ret)) return false;
 	return true;
 	}
-
-$qstr="BEGIN;
-    CREATE TABLE users (
-        id INTEGER PRIMARY KEY NOT NULL,
-        login CHAR(20) UNIQUE NOT NULL,
-        haslo CHAR(50) NOT NULL,
-        email CHAR(50) UNIQUE NOT NULL,
-        datad INT NOT NULL
-    );
-    INSERT INTO users VALUES (NULL,'admin','".sha1('haslo')."', 'admin@home.net',".time().");
-COMMIT;
-";
-
 ?>
